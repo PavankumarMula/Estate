@@ -6,6 +6,7 @@ import SignupPage from "./pages/SignupPage";
 import CartPage from "./pages/CartPage";
 import Checkout from "./pages/Checkout";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import Test from "./test";
 
 const App = () => {
   return (

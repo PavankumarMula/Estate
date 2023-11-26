@@ -1,8 +1,35 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { checkUserAsync } from "../AuthSlice";
 
 export default function Login() {
+  const dispatch = useDispatch();
+  const user = useSelector((store) => store.auth.isUserLoggedIn);
+
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
+
+  const inputHandler = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const loginFormHandler = (e) => {
+    e.preventDefault();
+    let validateErrors = validateData(formData);
+    setErrors(validateErrors);
+    if (Object.keys(validateErrors).length > 0) {
+      return;
+    }
+    dispatch(checkUserAsync(formData));
+    setFormData({ email: "", password: "" });
+    setErrors({});
+  };
+
   return (
     <>
+      {user && <Navigate to="/"></Navigate>}
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
@@ -16,7 +43,7 @@ export default function Login() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" onSubmit={loginFormHandler}>
             <div>
               <label
                 htmlFor="email"
@@ -25,12 +52,14 @@ export default function Login() {
                 Email address
               </label>
               <div className="mt-2">
+                <p className="text-red-600 pb-2">
+                  {errors.email && errors.email}
+                </p>
                 <input
-                  id="email"
                   name="email"
                   type="email"
-                  autoComplete="email"
-                  required
+                  value={formData.email}
+                  onChange={inputHandler}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -54,12 +83,14 @@ export default function Login() {
                 </div>
               </div>
               <div className="mt-2">
+                <p className="text-red-600 pb-2">
+                  {errors.password && errors.password}
+                </p>
                 <input
-                  id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
-                  required
+                  value={formData.password}
+                  onChange={inputHandler}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -89,3 +120,21 @@ export default function Login() {
     </>
   );
 }
+
+const validateData = (formData) => {
+  let errors = {};
+
+  // email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!formData.email.trim() || !emailRegex.test(formData.email)) {
+    errors.email = "Valid email is required";
+  }
+
+  // password validation
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+  if (!formData.password.trim() || !passwordRegex.test(formData.password)) {
+    errors.password =
+      " password Should at least 8 characters should contain 1 Capital";
+  }
+  return errors;
+};

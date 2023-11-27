@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductByIdAsync } from "./ProductListSlice";
+import { addToCartAsync } from "../cart/CartSlice";
 
 const colors = [
   { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
@@ -30,7 +31,7 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState(sizes[2]);
 
   const product = useSelector((store) => store.productList.selectedProduct);
-
+  const user = useSelector((store) => store.auth.user);
   const params = useParams();
   const dispatch = useDispatch();
 
@@ -38,15 +39,20 @@ export default function ProductDetail() {
     dispatch(fetchProductByIdAsync(params.id));
   }, [dispatch, params.id]);
 
+  // add to cart handler
+  const handleCart = (e) => {
+    e.preventDefault();
+    dispatch(
+      addToCartAsync({ product: product, quantity: 1, userId: user.id })
+    );
+  };
+
   return (
     <div className="bg-white">
       {product && (
         <div className="pt-6">
           <nav aria-label="Breadcrumb">
-            <ol
-              role="list"
-              className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8"
-            >
+            <ol className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
               {product.breadcrumbs &&
                 product.breadcrumbs.map((breadcrumb) => (
                   <li key={breadcrumb.id}>
@@ -153,7 +159,7 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              <form className="mt-10">
+              <form className="mt-10" onSubmit={handleCart}>
                 {/* Colors */}
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">Color</h3>
@@ -200,12 +206,12 @@ export default function ProductDetail() {
                 <div className="mt-10">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                    <a
+                    <Link
                       href="#"
                       className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                     >
                       Size guide
-                    </a>
+                    </Link>
                   </div>
 
                   <RadioGroup
@@ -304,7 +310,7 @@ export default function ProductDetail() {
                 </h3>
 
                 <div className="mt-4">
-                  <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
+                  <ul className="list-disc space-y-2 pl-4 text-sm">
                     {product.highlights &&
                       product.highlights.map((highlight) => (
                         <li key={highlight} className="text-gray-400">

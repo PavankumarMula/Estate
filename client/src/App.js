@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import LoginPage from "./pages/LoginPage";
@@ -7,8 +7,20 @@ import CartPage from "./pages/CartPage";
 import Checkout from "./pages/Checkout";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import Protected from "./auth/components/Protected";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProductsByUserIdAsync } from "./features/cart/CartSlice";
 
 const App = () => {
+  const user = useSelector((store) => store.auth.user);
+  const dispatch = useDispatch();
+
+  // fetch products on when user logged in for the first time
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchProductsByUserIdAsync(user.id));
+    }
+  }, [user, dispatch]);
+
   return (
     <div>
       <BrowserRouter>

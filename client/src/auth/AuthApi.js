@@ -24,12 +24,12 @@ export const checkUserApi = async (data) => {
     const resJson = await response.json();
     if (resJson.length > 0) {
       if (resJson[0].email === email && resJson[0].password === password) {
-        return true;
+        return resJson[0];
       } else {
-        return false;
+        throw new Error("Invalid credentials");
       }
     } else {
-      throw new Error("user not found");
+      throw new Error("User not found");
     }
   } catch (error) {
     throw error;

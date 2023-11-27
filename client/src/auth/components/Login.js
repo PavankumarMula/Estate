@@ -6,9 +6,9 @@ import { checkUserAsync } from "../AuthSlice";
 export default function Login() {
   const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.isUserLoggedIn);
+  const loginError = useSelector((store) => store.auth.error);
 
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({});
 
   const inputHandler = (e) => {
     const { name, value } = e.target;
@@ -18,13 +18,11 @@ export default function Login() {
   const loginFormHandler = (e) => {
     e.preventDefault();
     let validateErrors = validateData(formData);
-    setErrors(validateErrors);
     if (Object.keys(validateErrors).length > 0) {
       return;
     }
     dispatch(checkUserAsync(formData));
     setFormData({ email: "", password: "" });
-    setErrors({});
   };
 
   return (
@@ -52,9 +50,6 @@ export default function Login() {
                 Email address
               </label>
               <div className="mt-2">
-                <p className="text-red-600 pb-2">
-                  {errors.email && errors.email}
-                </p>
                 <input
                   name="email"
                   type="email"
@@ -83,9 +78,6 @@ export default function Login() {
                 </div>
               </div>
               <div className="mt-2">
-                <p className="text-red-600 pb-2">
-                  {errors.password && errors.password}
-                </p>
                 <input
                   name="password"
                   type="password"
@@ -93,6 +85,9 @@ export default function Login() {
                   onChange={inputHandler}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+                {loginError && (
+                  <p className="text-red-600 pb-2">{loginError}</p>
+                )}
               </div>
             </div>
 

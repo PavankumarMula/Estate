@@ -6,6 +6,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const user = {
   name: "Tom Cook",
@@ -31,6 +32,11 @@ function classNames(...classes) {
 }
 
 export default function NavBar({ children }) {
+  const items = useSelector((store) => store.cart.items);
+
+  const totalQuantity = items.reduce((totalitems, currentItem) => {
+    return currentItem.quantity + totalitems;
+  }, 0);
   return (
     <>
       <div className="min-h-full">
@@ -86,7 +92,7 @@ export default function NavBar({ children }) {
                         </button>
                       </Link>
                       <span className="inline-flex items-center rounded-md mb-7 mr-2 bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
-                        4
+                        {totalQuantity}
                       </span>
 
                       {/* Profile dropdown */}

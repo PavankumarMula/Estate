@@ -6,7 +6,7 @@ const initialState = {
   status: "idle",
   isUserLoggedIn: false,
   error: null,
-  newUser: null,
+  user: null,
 };
 
 // async thunk middleware to create User
@@ -23,12 +23,8 @@ export const createUserAsync = createAsyncThunk(
 );
 
 export const checkUserAsync = createAsyncThunk("/checkUser", async (data) => {
-  try {
-    const response = await checkUserApi(data);
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  const response = await checkUserApi(data);
+  return response;
 });
 
 const createUser = createSlice({
@@ -45,17 +41,22 @@ const createUser = createSlice({
         state.status = "fulfilled";
       })
       .addCase(createUserAsync.rejected, (state, action) => {
-        state.status = action.error.message;
+        state.status = "rejected";
+        state.error = action.error.message || "Failed to create user.";
       })
       .addCase(checkUserAsync.pending, (state) => {
         state.status = "pending";
       })
       .addCase(checkUserAsync.fulfilled, (state, action) => {
-        state.isUserLoggedIn = action.payload;
+        state.user = action.payload;
+        if (action.payload) {
+          state.isUserLoggedIn = true;
+        }
         state.status = "fulfilled";
       })
       .addCase(checkUserAsync.rejected, (state, action) => {
-        state.error = action.error.message;
+        state.status = "rejected";
+        state.error = action.error.message || "Failed to check user.";
       });
   },
 });
